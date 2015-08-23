@@ -294,7 +294,7 @@ function SetupPlayerLines()
         observerLine.speedSlider._background.Top:Set(observerLine.speedSlider.Top)
         observerLine.speedSlider._background.Bottom:Set(observerLine.speedSlider.Bottom)
         observerLine.speedSlider._thumb.Depth:Set(function() return observerLine.Depth() + 5 end)
-        Tooltip.AddControlTooltip(observerLine.speedSlider._thumb, 'Lobby_Gen_GameSpeed')
+        Tooltip.AddControlTooltip(observerLine.speedSlider._thumb, 'replay_speed')
         observerLine.speedSlider._background.Depth:Set(function() return observerLine.speedSlider._thumb.Depth() - 1 end)
         LayoutHelpers.AtVerticalCenterIn(observerLine.speedText, observerLine.speedSlider)
 
