@@ -206,12 +206,14 @@ function BuffAffectUnit(unit, buffName, instigator, afterRemove)
                     unit:SetHealth(unit, math.min(unit:GetHealth(), unit:GetMaxHealth()))
                 end
             end
+        --[[
         elseif atype == 'Regen' then
             local bpregn = unit:GetBlueprint().Defense.RegenRate or 0
             local val = BuffCalculate(unit, buffName, 'Regen', bpregn)
 
             unit:SetRegen(val)
-        elseif atype == 'RegenPercent' then
+            ]]--
+        elseif atype == 'RegenPercent' or atype == 'Regen' then
             local val = false
 
             if afterRemove then
@@ -220,7 +222,7 @@ function BuffAffectUnit(unit, buffName, instigator, afterRemove)
                 val = BuffCalculate(unit, nil, 'Regen', bpregn)
             else
                 --Buff this sucka
-                val = BuffCalculate(unit, buffName, 'RegenPercent', unit:GetMaxHealth())
+                val = BuffCalculate(unit, buffName, 'RegenPercent', unit:GetMaxHealth()) + BuffCalculate(unit, buffName, 'Regen', bpregn)
             end
 
             unit:SetRegen(val)
