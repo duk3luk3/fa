@@ -47,6 +47,50 @@ local Points = {
 AIBrain = Class(moho.aibrain_methods) {
     Result = nil,
 
+    ------------------------------------------------------
+    ----------- ENGYMOD HQ fac bookkeeping HERE  ---------
+    ------------------------------------------------------
+
+    -- Add an HQ factory to the array
+    AddHQFac = function(self, unit)
+        local bp = unit:GetBlueprint()
+
+        local faction = bp.General.FactionName
+        local layer = bp.General.Icon -- this is hacky but it works
+        local tech = bp.General.TechLevel
+
+        -- Make sure data structure is initialized (could do this in CreateBrainShared but I am lazy and don't like hardcoding strings)
+        if not self.HQFacs[faction] then
+            self.HQFacs[faction] = {}
+        end
+        if not self.HQFacs[faction][layer] then
+            self.HQFacs[faction][layer] = {}
+        end
+
+        self.HQFacs[faction][layer][tech] = (self.HQFacs[faction][layer][tech] or 0) + 1
+    end,
+
+    RemoveHQFac = function(self, unit)
+        local bp = unit:GetBlueprint()
+
+        local faction = bp.General.FactionName
+        local layer = bp.General.Icon -- this is hacky but it works
+        local tech = bp.General.TechLevel
+
+        -- sanity check
+        if not self.HQFacs[faction] then
+            WARN('Hit unitialized HQFacs in RemoveHQFac, unit id ' .. bp.BlueprintId)
+        end
+        if not self.HQFacs[faction][layer] then
+            WARN('Hit unitialized HQFacs in RemoveHQFac, unit id ' .. bp.BlueprintId)
+        end
+        if not self.HQFacs[faction][layer][tech] then
+            WARN('Hit unitialized HQFacs in RemoveHQFac, unit id ' .. bp.BlueprintId)
+        end
+
+        self.HQFacs[faction][layer][tech] = (self.HQFacs[faction][layer][tech]) - 1
+    end,
+
    ------------------------------------------------------
    ----------- HUMAN BRAIN FUNCTIONS HANDLED HERE  ------
    ------------------------------------------------------
@@ -170,6 +214,8 @@ AIBrain = Class(moho.aibrain_methods) {
         -- issue:--43 : Better stealth
         self.UnitIntelList = {}
 
+        -- engymod HQ dictionary
+        self.HQFacs = {}
     end,
 
     OnSpawnPreBuiltUnits = function(self)

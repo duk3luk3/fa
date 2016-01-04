@@ -628,11 +628,6 @@ StructureUnit = Class(Unit) {
 ---------------------------------------------------------------
 FactoryUnit = Class(StructureUnit) {
     OnCreate = function(self)
-        -- Engymod addition: If a normal factory is created, we should check for research stations
-        if EntityCategoryContains(categories.FACTORY, self) then
-           self:updateBuildRestrictions()
-        end
-
         StructureUnit.OnCreate(self)
         self.BuildingUnit = false
     end,
@@ -648,18 +643,13 @@ FactoryUnit = Class(StructureUnit) {
     end,
 
     OnDestroy = function(self)
-        -- Figure out if we're a research station
+        -- Engymod: If this is an HQ factory, decrement HQs counter
         if EntityCategoryContains(categories.RESEARCH, self) then
             local aiBrain = self:GetAIBrain()
-            local buildRestrictionVictims = aiBrain:GetListOfUnits(categories.FACTORY+categories.ENGINEER, false)
-
-            for id, unit in buildRestrictionVictims do
-                unit:updateBuildRestrictions()
-            end
+            aiBrain:RemoveHQFac(self)
         end
 
         StructureUnit.OnDestroy(self)
-
         self.DestroyUnitBeingBuilt(self)
     end,
 
@@ -690,12 +680,10 @@ FactoryUnit = Class(StructureUnit) {
             self.BlinkingLightsState = 'Red'
         end
 
-        -- If we're a HQ, update build restrictions for all factories
+        -- Engymod: If this is an HQ factory, add it to HQs counter
         if EntityCategoryContains(categories.RESEARCH, self) then
-            local buildRestrictionVictims = aiBrain:GetListOfUnits(categories.FACTORY + categories.ENGINEER, false)
-            for id, unit in buildRestrictionVictims do
-                unit:updateBuildRestrictions()
-            end
+            local aiBrain = self:GetAIBrain()
+            aiBrain:AddHQFac(self)
         end
 
         StructureUnit.OnStopBeingBuilt(self,builder,layer)
