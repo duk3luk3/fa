@@ -51,6 +51,12 @@ AIBrain = Class(moho.aibrain_methods) {
     ----------- ENGYMOD HQ fac bookkeeping HERE  ---------
     ------------------------------------------------------
 
+    -- Check if there is an HQ Fac
+    HasHQFac = function(self, faction, layer, tech)
+        -- Get HQFacs[faction][layer][tech] without nil indexing error
+        return (((self.HQFacs[faction] or {})[layer] or {})[tech] or 0) > 0
+    end,
+
     -- Add an HQ factory to the array
     AddHQFac = function(self, unit)
         local bp = unit:GetBlueprint()

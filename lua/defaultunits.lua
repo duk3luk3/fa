@@ -626,6 +626,42 @@ StructureUnit = Class(Unit) {
 ---------------------------------------------------------------
 --  FACTORY  UNITS
 ---------------------------------------------------------------
+
+---
+--  Support factory mixin that checks engymod build restrictions
+---
+SupportFactoryUnit = Class() {
+    CheckBuildRestriction = function(self, target_bp)
+        -- Check normal restrictions
+        -- This is ugly because multiple inheritance
+        -- We could just call Unit.CheckBuildRestriction because there isn't anything else overriding build restrictions but we shouldn't rely on that
+        for i, base in self.__bases do
+            if base.CheckBuildRestriction then
+                if not base.CheckBuildRestriction(self, target_bp) then
+                return false
+                end
+            end
+        end
+
+        -- Now check if we have an HQ that allows us to build the unit
+        local aiBrain = self:GetAIBrain()
+
+        local faction = target_bp.General.FactionName
+        local layer = target_bp.General.Icon
+        local tech = target_bp.General.TechLevel
+
+        -- Get aiBrain.HQFacs[faction][layer][tech] without nil indexing error
+        if aibrain:HasHQFac(faction, layer, tech) then
+            return true
+        -- we also need to check for a T3 HQ if we're building a T2 unit
+        elseif tech == 'RULEUTL_Advanced' and aibrain:HasHQFac(faction, layer, 'RULEUTL_Secret') then
+            return true
+        else
+            return false
+        end
+    end
+}
+
 FactoryUnit = Class(StructureUnit) {
     OnCreate = function(self)
         StructureUnit.OnCreate(self)
@@ -643,8 +679,8 @@ FactoryUnit = Class(StructureUnit) {
     end,
 
     OnDestroy = function(self)
-        -- Engymod: If this is an HQ factory, decrement HQs counter
-        if EntityCategoryContains(categories.RESEARCH, self) then
+        -- Engymod: If this is an HQ factory and it was completed, decrement HQs counter
+        if EntityCategoryContains(categories.RESEARCH, self) and self:GetFractionComplete() == 1 then
             local aiBrain = self:GetAIBrain()
             aiBrain:RemoveHQFac(self)
         end
