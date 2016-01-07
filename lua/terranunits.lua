@@ -141,7 +141,8 @@ TConstructionUnit = Class(ConstructionUnit) {
                 self.TerrainLayerTransitionThread:Destroy()
                 self.TerrainLayerTransitionThread = nil
             end
-            if (old ~= 'None') then
+            -- Engineers are not meant to go into the air (Fixes #1061)
+            if (old ~= 'None' and new ~= 'Air') then
                 self.TerrainLayerTransitionThread = self:ForkThread(self.TransformThread, (new == 'Water'))
             end
         end

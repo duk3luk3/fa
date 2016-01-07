@@ -64,7 +64,8 @@ URS0201 = Class(CSeaUnit) {
 
         -- Can only be built in water so transformthread only needs to be run
         -- when actually changing layer or when spawned on land
-        if old != 'None' or new == 'Land' then
+        -- Also does not go into the air (Fixes #1061)
+        if (old ~= 'None' or new == 'Land') and new ~= 'Air' then
             if self.AT1 then
                 self.AT1:Destroy()
             end
