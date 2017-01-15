@@ -5646,21 +5646,38 @@ function InitHostUtils()
             end
         end,
 
+
         --- Send player settings to the server
         SendPlayerSettingsToServer = function(slotNum)
-            local playerInfo = gameInfo.PlayerOptions[slotNum]
-            local sendPlayerOption = function(key, value)
+            local function SendPlayerOption(playerInfo, key, value)
                 if playerInfo.Human then
                     GpgNetSend('PlayerOption', playerInfo.OwnerID, key, value)
                 else
                     GpgNetSend('AIOption', playerInfo.PlayerName, key, value)
                 end
             end
-            sendPlayerOption('Faction', playerInfo.Faction)
-            sendPlayerOption('Color', playerInfo.PlayerColor)
-            sendPlayerOption('Team', playerInfo.Team)
-            sendPlayerOption('StartSpot', slotNum)
-            sendPlayerOption('Army', slotNum)
+
+            -- This function is needed because army numbers need to be calculated: armies are numbered incrementally in slot order.
+            -- After every slot change, the army index needs to be recalculated for every slot.
+            -- FIXME: This could be done once when the game is launched instead of on every slot change.
+            local function SendArmySettingsToServer()
+                local armyIdx = 1
+                for slotNum, playerInfo in gameInfo.PlayerOptions:pairs() do
+
+                    if playerInfo ~= nil then
+                        SendPlayerOption(playerInfo, 'Army', armyIdx)
+                        armyIdx = armyIdx + 1
+                    end
+                end
+            end
+
+            local playerInfo = gameInfo.PlayerOptions[slotNum]
+            SendPlayerOption(playerInfo, 'Faction', playerInfo.Faction)
+            SendPlayerOption(playerInfo, 'Color', playerInfo.PlayerColor)
+            SendPlayerOption(playerInfo, 'Team', playerInfo.Team)
+            SendPlayerOption(playerInfo, 'StartSpot', slotNum)
+
+            SendArmySettingsToServer()
         end,
 
         --- Called by the host when someone's readyness state changes to update the enabledness of buttons.
