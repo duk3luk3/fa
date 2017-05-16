@@ -1756,6 +1756,9 @@ AirUnit = Class(MobileUnit) {
             end
 
             -- Create a projectile we'll use to interact with Shields
+            if self.colliderProj then
+                WARN('OMG there is already a colliderProj, WTF')
+            end
             local proj = self:CreateProjectileAtBone('/projectiles/ShieldCollider/ShieldCollider_proj.bp', 0)
             self.colliderProj = proj
             proj:Start(self, 0)

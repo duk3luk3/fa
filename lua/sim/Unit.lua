@@ -1578,6 +1578,13 @@ Unit = Class(moho.unit_methods) {
         local scale = ((bp.SizeX or 0 + bp.SizeZ or 0) * 0.5)
         local bone = 0
 
+        -- selfcolliderProj from shield bounce code conflicts with Sinker_Proj so shouldn't be around
+        if self.colliderProj then
+            local bd = self.colliderProj.BeenDestroyed and self.colliderProj:BeenDestroyed()
+            WARN('*WARNING: TRYING TO StartSinking BUT THERE IS STILL A ShieldCollider_proj existing. colliderProj Dead: ' .. repr(self.colliderProj.Dead) .. '; colliderProj BeenDestroyed: ' .. repr(bd))
+        end
+
+
         -- Create sinker projectile
         local proj = self:CreateProjectileAtBone('/projectiles/Sinker/Sinker_proj.bp', bone)
 

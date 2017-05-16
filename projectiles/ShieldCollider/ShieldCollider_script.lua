@@ -125,6 +125,11 @@ ShieldCollider = Class(Projectile) {
         local bp = self.Plane:GetBlueprint()
         local volume = bp.SizeX * bp.SizeY * bp.SizeZ -- We will use this to *guess* how much force to apply
 
+        if volume == 0 then
+            WARN('Going to divide by volume=0')
+            volume = 1
+        end
+
         local spin = math.min (4 / volume, 2) -- Less for larger planes; also 2 is a nice number
         self:SetLocalAngularVelocity(spin, spin, spin) -- Ideally I would just set this to whatever the plane had but I dont know how
 
@@ -139,6 +144,11 @@ ShieldCollider = Class(Projectile) {
         local speed = math.sqrt(vx * vx + vy * vy + vz * vz) -- The length of our vector
         local shieldMag = math.sqrt(wx * wx + wy * vy + wz * wz) -- The length of our other vector
 
+        if shieldMag == 0 then
+            WARN('Going to divide by shieldMag=0')
+            shieldMag = 1
+        end
+
         -- Normalizing all our shield vector, so we dont need to deal with scalar nonsense
         wx = wx / shieldMag
         wy = wy / shieldMag
@@ -148,6 +158,10 @@ ShieldCollider = Class(Projectile) {
         local dotProduct = vx * wx + vy * wy + vz * wz
 
         local ke = 0.5 * volume * speed * speed -- Our kinetic energy, used to scale the stoppingpower
+        if ke == 0 then
+            WARN('Going to divide by ke=0')
+            ke = 1
+        end
         local stoppingPower = math.min(50 / (ke * 0.5), 2) -- 2 is a perfect bounce, 0 is unaffected velocity
 
         local angleCos = 10 * dotProduct / (speed * shieldMag) -- We take our unit vectors and calculate the angle. That 10 is to convert speed back to its "proper" length
